@@ -1,0 +1,17 @@
+{
+  "name": "sistema-chamados-suporte-tecnico",
+  "version": "1.0.0",
+  "description": "API REST para registro e gerenciamento de chamados de suporte técnico usando Node.js, Express e armazenamento em JSON.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
