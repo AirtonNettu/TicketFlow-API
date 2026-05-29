@@ -1,0 +1,15 @@
+body { font-family: Inter, system-ui, Arial, sans-serif; background: #f4f6fb; color: #16324f; margin: 0; }
+.container { max-width: 900px; margin: 32px auto; padding: 16px; }
+h1 { margin: 0 0 16px 0; }
+.card { background: #fff; padding: 16px; border-radius: 10px; box-shadow: 0 8px 20px rgba(13,36,63,0.06); margin-bottom: 16px; }
+label { display: block; margin-bottom: 8px; }
+input, textarea, select { width: 100%; padding: 8px 10px; margin-top: 6px; border-radius: 6px; border: 1px solid #e6eef6; }
+textarea { min-height: 80px; }
+.actions { margin-top: 10px; display:flex; gap:8px; }
+button { padding: 8px 12px; border-radius: 8px; border: none; background: #1c3d7d; color: white; cursor: pointer; }
+button[type="button"] { background: #e6eef6; color: #1c3d7d; }
+.ticket { border-left: 4px solid #e6eef6; padding: 12px; margin-bottom: 12px; border-radius: 6px; background: #fbfdff; }
+.ticket .head { display:flex; justify-content:space-between; align-items:center; }
+.badge { background: #ffefef; color: #8b1c1c; padding: 4px 8px; border-radius: 999px; font-size: 0.9rem; }
+.meta { font-size: 0.9rem; color: #6b7a8a; }
+.status { margin-top: 8px; font-size: 0.95rem; }

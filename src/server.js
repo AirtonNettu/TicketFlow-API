@@ -1,6 +1,7 @@
 // Ponto de entrada da aplicação Express.
 // Este arquivo configura o servidor, carrega as rotas principais e os handlers de erro.
 const express = require('express');
+const path = require('path');
 const ticketRoutes = require('./routes/ticketRoutes');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
@@ -100,6 +101,9 @@ app.get('/docs', (req, res) => {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   return res.send(html);
 });
+
+// Serve a interface simples (front-end) em /app
+app.use('/app', express.static(path.join(__dirname, '..', 'public')));
 
 // Registra as rotas de tickets sob o caminho base /tickets.
 app.use('/tickets', ticketRoutes);

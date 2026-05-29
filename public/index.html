@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TicketFlow - Interface</title>
+  <link rel="stylesheet" href="/app/styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>TicketFlow - Chamados</h1>
+
+    <section class="card">
+      <h2>Criar Chamado</h2>
+      <form id="create-form">
+        <label>Título<input name="titulo" required /></label>
+        <label>Descrição<textarea name="descricao" required></textarea></label>
+        <label>Categoria
+          <select name="categoria">
+            <option>Hardware</option>
+            <option>Software</option>
+            <option>Rede</option>
+            <option>Impressora</option>
+            <option>Outros</option>
+          </select>
+        </label>
+        <label>Prioridade
+          <select name="prioridade">
+            <option>Baixa</option>
+            <option>Média</option>
+            <option selected>Alta</option>
+          </select>
+        </label>
+        <div class="actions">
+          <button type="submit">Criar</button>
+          <button type="button" id="refresh">Atualizar lista</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Lista de Chamados</h2>
+      <div id="tickets"></div>
+    </section>
+  </main>
+  <script src="/app/app.js"></script>
+</body>
+</html>
