@@ -1,20 +1,20 @@
-# Sistema de Chamados de Suporte Técnico
+# Support Ticket System
 
 ![license](https://img.shields.io/badge/license-MIT-green.svg)
 ![node](https://img.shields.io/badge/node-%3E%3D14-brightgreen)
 
-API REST para gerenciar chamados de suporte técnico. Ideal para portfólio de Assistente de TI, Analista de Suporte e Desenvolvedor Backend Júnior.
+REST API to manage technical support tickets. Ideal for a portfolio aimed at IT Support Assistant, Support Analyst and Junior Backend Developer positions.
 
-## Tecnologias utilizadas
+## Technologies
 
 - Node.js
 - Express
 - JavaScript
 - UUID
-- Arquitetura em camadas (Routes, Controllers, Services)
-- Armazenamento em arquivo JSON
+- Layered architecture (Routes, Controllers, Services)
+- JSON file storage (initial version)
 
-## Estrutura de pastas
+## Project structure
 
 ```
 src/
@@ -33,70 +33,70 @@ src/
 └── server.js
 ```
 
-## Arquitetura do projeto
+## Architecture
 
-- `src/server.js`: ponto de entrada da API. Configura o servidor Express, habilita o parser JSON, registra as rotas e aplica middleware de erro.
-- `src/routes/ticketRoutes.js`: define os endpoints HTTP e encaminha as requisições para o controller apropriado.
-- `src/controllers/ticketController.js`: recebe a requisição, valida dados de entrada e chama a camada de serviço.
-- `src/services/ticketService.js`: contém a lógica de negócio e a persistência em arquivo JSON.
-- `src/data/chamados.json`: arquivo de armazenamento dos chamados.
-- `src/utils/validation.js`: validação de campos obrigatórios e valores válidos para categoria, prioridade e status.
-- `src/middlewares/errorHandler.js`: tratamento centralizado de erros e retornos HTTP.
+- `src/server.js`: application entrypoint. Configures Express server, registers routes and error middleware.
+- `src/routes/ticketRoutes.js`: HTTP endpoints mapping to controller actions.
+- `src/controllers/ticketController.js`: request handling and input validation; delegates to services.
+- `src/services/ticketService.js`: business logic and persistence (JSON file).
+- `src/data/chamados.json`: data storage for tickets.
+- `src/utils/validation.js`: input validation and allowed values for category, priority and status.
+- `src/middlewares/errorHandler.js`: centralized error handling.
 
-## Como instalar
+## Install
 
 ```bash
 npm install
 ```
 
-## Como executar
+## Run
 
 ```bash
 npm start
 ```
 
-Para desenvolvimento com reinício automático:
+For development with auto-reload:
 
 ```bash
 npm run dev
 ```
 
-A documentação da API fica disponível em:
+API documentation is available at:
 
 - `GET /docs`
 
-## Rotas da API
+## API routes
 
-- `GET /` - Rota raiz com resumo e link para documentação da API
-- `GET /docs` - Documentação profissional em HTML da API
-- `POST /tickets` - Criar um novo chamado
-- `GET /tickets` - Listar todos os chamados
-- `GET /tickets/:id` - Buscar chamado por ID
-- `PUT /tickets/:id` - Atualizar informações do chamado
-- `PATCH /tickets/:id/status` - Atualizar apenas o status
-- `DELETE /tickets/:id` - Excluir chamado
+- `GET /` - Root with link to documentation
+- `GET /docs` - Professional HTML documentation
+- `POST /tickets` - Create a new ticket
+- `GET /tickets` - List all tickets
+- `GET /tickets/:id` - Get ticket by ID
+- `PUT /tickets/:id` - Update a ticket
+- `PATCH /tickets/:id/status` - Update ticket status only
+- `DELETE /tickets/:id` - Delete a ticket
 
-## Campos do ticket
+## Ticket fields
 
-O chamado possui os seguintes campos:
+Tickets include the following fields:
 
-- `id`: identificador único gerado automaticamente com UUID
-- `titulo`: título resumido do problema
-- `descricao`: descrição detalhada do problema
-- `categoria`: categoria do tipo de atendimento
-- `prioridade`: nível de urgência do chamado
-- `status`: situação atual do ticket
-- `createdAt`: data/hora de criação no formato ISO 8601
+- `id`: unique identifier generated with UUID
+- `titulo`: brief title of the issue
+- `descricao`: detailed description of the issue
+- `categoria`: ticket category
+- `prioridade`: ticket priority
+- `status`: current ticket status
+- `createdAt`: creation date/time in ISO 8601 format
 
-### Valores válidos
+### Valid values
 
 - `categoria`: `Hardware`, `Software`, `Rede`, `Impressora`, `Outros`
 - `prioridade`: `Baixa`, `Média`, `Alta`
 - `status`: `Aberto`, `Em andamento`, `Resolvido`, `Fechado`
 
-## Exemplo de requisições
+## Example requests
 
-### Criar chamado
+### Create ticket
 
 ```bash
 curl -X POST http://localhost:3000/tickets \
@@ -109,7 +109,7 @@ curl -X POST http://localhost:3000/tickets \
   }'
 ```
 
-### Atualizar chamado completo
+### Update ticket (full)
 
 ```bash
 curl -X PUT http://localhost:3000/tickets/{id} \
@@ -123,7 +123,7 @@ curl -X PUT http://localhost:3000/tickets/{id} \
   }'
 ```
 
-### Atualizar status
+### Update status
 
 ```bash
 curl -X PATCH http://localhost:3000/tickets/{id}/status \
@@ -131,15 +131,15 @@ curl -X PATCH http://localhost:3000/tickets/{id}/status \
   -d '{"status": "Em andamento"}'
 ```
 
-### Excluir chamado
+### Delete ticket
 
 ```bash
 curl -X DELETE http://localhost:3000/tickets/{id}
 ```
 
-## Respostas de exemplo
+## Example responses
 
-Exemplo de resposta bem-sucedida para `GET /tickets` (200):
+Success response for `GET /tickets` (200):
 
 ```json
 [{
@@ -153,19 +153,19 @@ Exemplo de resposta bem-sucedida para `GET /tickets` (200):
 }]
 ```
 
-## Licença
+## License
 
-Este projeto está licenciado sob a licença MIT — veja o arquivo `LICENSE` para mais detalhes.
+This project is licensed under the MIT License — see the `LICENSE` file for details.
 
-## Contribuição
+## Contributing
 
-Contribuições são bem-vindas. Abra issues ou envie pull requests no repositório do GitHub.
+Contributions are welcome. Please open issues or submit pull requests on the GitHub repository.
 
-## Próximas melhorias
+## Next improvements
 
-- Migrar armazenamento para PostgreSQL
-- Adotar Prisma ORM
-- Criar ambiente com Docker
-- Autenticação JWT
-- Dashboard Web
-- Controle de usuários e técnicos
+- Migrate storage to PostgreSQL
+- Adopt Prisma ORM
+- Create a Docker environment
+- Add JWT authentication
+- Web dashboard
+- User and technician management
