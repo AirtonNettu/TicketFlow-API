@@ -1,5 +1,8 @@
 # Sistema de Chamados de Suporte Técnico
 
+![license](https://img.shields.io/badge/license-MIT-green.svg)
+![node](https://img.shields.io/badge/node-%3E%3D14-brightgreen)
+
 API REST para gerenciar chamados de suporte técnico. Ideal para portfólio de Assistente de TI, Analista de Suporte e Desenvolvedor Backend Júnior.
 
 ## Tecnologias utilizadas
@@ -133,6 +136,30 @@ curl -X PATCH http://localhost:3000/tickets/{id}/status \
 ```bash
 curl -X DELETE http://localhost:3000/tickets/{id}
 ```
+
+## Respostas de exemplo
+
+Exemplo de resposta bem-sucedida para `GET /tickets` (200):
+
+```json
+[{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "titulo": "Impressora não imprime",
+  "descricao": "A impressora do setor financeiro não responde",
+  "categoria": "Impressora",
+  "prioridade": "Alta",
+  "status": "Aberto",
+  "createdAt": "2026-05-29T12:34:56.789Z"
+}]
+```
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT — veja o arquivo `LICENSE` para mais detalhes.
+
+## Contribuição
+
+Contribuições são bem-vindas. Abra issues ou envie pull requests no repositório do GitHub.
 
 ## Próximas melhorias
 
