@@ -1,7 +1,25 @@
+# Node.js dependencies
 node_modules/
+
+# Environment variables
 .env
-.DS_Store
-**/chamados.json
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+
+# IDE / editor settings
+.vscode/
+.DS_Store
+
+# Build output
+dist/
+build/
+
+# Coverage
+coverage/
+
+# OS generated files
+Thumbs.db
