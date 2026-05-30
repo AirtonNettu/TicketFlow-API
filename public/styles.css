@@ -1,15 +1,446 @@
-body { font-family: Inter, system-ui, Arial, sans-serif; background: #f4f6fb; color: #16324f; margin: 0; }
-.container { max-width: 900px; margin: 32px auto; padding: 16px; }
-h1 { margin: 0 0 16px 0; }
-.card { background: #fff; padding: 16px; border-radius: 10px; box-shadow: 0 8px 20px rgba(13,36,63,0.06); margin-bottom: 16px; }
-label { display: block; margin-bottom: 8px; }
-input, textarea, select { width: 100%; padding: 8px 10px; margin-top: 6px; border-radius: 6px; border: 1px solid #e6eef6; }
-textarea { min-height: 80px; }
-.actions { margin-top: 10px; display:flex; gap:8px; }
-button { padding: 8px 12px; border-radius: 8px; border: none; background: #1c3d7d; color: white; cursor: pointer; }
-button[type="button"] { background: #e6eef6; color: #1c3d7d; }
-.ticket { border-left: 4px solid #e6eef6; padding: 12px; margin-bottom: 12px; border-radius: 6px; background: #fbfdff; }
-.ticket .head { display:flex; justify-content:space-between; align-items:center; }
-.badge { background: #ffefef; color: #8b1c1c; padding: 4px 8px; border-radius: 999px; font-size: 0.9rem; }
-.meta { font-size: 0.9rem; color: #6b7a8a; }
-.status { margin-top: 8px; font-size: 0.95rem; }
+/*
+  ══════════════════════════════════════════════════════
+  RESET GLOBAL
+  Remove margens, paddings e box-sizing padrão do navegador.
+  Cada navegador tem estilos padrão diferentes — o reset garante
+  que nossa página apareça igual em todos os navegadores.
+  ══════════════════════════════════════════════════════
+*/
+*, *::before, *::after {
+  box-sizing: border-box; /* padding e border não aumentam o tamanho do elemento */
+  margin: 0;
+  padding: 0;
+}
+ 
+/*
+  BODY — Estilos base da página
+  Tudo que não tem estilo próprio herda daqui.
+*/
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  /* system-ui e sans-serif são fallbacks caso a fonte do Google não carregue */
+  background: #f0f2f5; /* cinza claro de fundo — contrasta com os cards brancos */
+  color: #1a2332;      /* cor de texto padrão: azul-escuro quase preto */
+  min-height: 100vh;   /* garante que o fundo ocupe a tela toda mesmo com pouco conteúdo */
+}
+ 
+ 
+/* ══════════════════════════════════════════════════════
+   HEADER — Barra superior fixa
+   ══════════════════════════════════════════════════════ */
+.header {
+  background: #fff;
+  border-bottom: 1px solid #e8ecf0; /* linha sutil separando do conteúdo */
+  position: sticky; /* fica grudado no topo ao rolar a página */
+  top: 0;
+  z-index: 100; /* fica acima de todos os outros elementos */
+}
+ 
+.header-inner {
+  max-width: 1200px;  /* limita a largura máxima do conteúdo */
+  margin: 0 auto;     /* centraliza horizontalmente */
+  padding: 0 24px;    /* espaço nas laterais */
+  height: 60px;
+  display: flex;
+  align-items: center;      /* centraliza verticalmente */
+  justify-content: space-between; /* empurra brand pra esquerda, status pra direita */
+}
+ 
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* espaço entre o ícone e o texto */
+}
+ 
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: #1c3d7d;   /* azul escuro da marca */
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff; /* cor do SVG filho herda daqui (stroke="currentColor" no HTML) */
+}
+ 
+.brand-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a2332;
+  line-height: 1.2;
+}
+ 
+.brand-sub {
+  font-size: 11px;
+  color: #7a8899; /* cinza mais claro para texto secundário */
+}
+ 
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #3b6f2e;        /* verde escuro para o texto */
+  background: #eaf4e7;   /* fundo verde claro — pill/badge */
+  padding: 4px 12px;
+  border-radius: 999px;  /* valor alto cria o efeito "pill" (cápsula arredondada) */
+  font-weight: 500;
+}
+ 
+/*
+  ANIMAÇÃO: bolinha verde piscando
+  @keyframes define uma animação com nome "pulse".
+  0% e 100% = estados inicial e final.
+  50% = estado intermediário (meio da animação).
+  O CSS alterna opacity entre 1 (visível) e 0.4 (quase invisível) continuamente.
+*/
+.status-dot {
+  width: 7px;
+  height: 7px;
+  background: #4caf50;
+  border-radius: 50%; /* círculo perfeito */
+  animation: pulse 2s infinite; /* repete para sempre a cada 2 segundos */
+}
+ 
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+ 
+ 
+/* ══════════════════════════════════════════════════════
+   CONTAINER — Wrapper central do conteúdo principal
+   ══════════════════════════════════════════════════════ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px 48px; /* top | lados | bottom — mais espaço embaixo */
+}
+ 
+ 
+/* ══════════════════════════════════════════════════════
+   WELCOME — Saudação no topo
+   ══════════════════════════════════════════════════════ */
+.welcome {
+  margin-bottom: 24px;
+}
+ 
+.welcome h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1a2332;
+  margin-bottom: 4px;
+}
+ 
+.welcome p {
+  font-size: 14px;
+  color: #7a8899; /* texto secundário mais suave */
+}
+ 
+ 
+/* ══════════════════════════════════════════════════════
+   STATS GRID — Grid dos cards de métricas
+   ══════════════════════════════════════════════════════ */
+.stats-grid {
+  display: grid;
+  /*
+    auto-fit: cria quantas colunas couberem na largura disponível.
+    minmax(140px, 1fr): cada coluna tem no mínimo 140px e cresce igualmente.
+    Em telas largas = 6 colunas. Em telas menores = menos colunas automaticamente.
+    Isso é CSS responsivo sem media query!
+  */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+ 
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e8ecf0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column; /* empilha os elementos verticalmente */
+  gap: 6px;
+}
+ 
+.stat-label {
+  font-size: 12px;
+  color: #7a8899;
+  font-weight: 500;
+}
+ 
+.stat-value {
+  font-size: 26px;
+  font-weight: 600;
+  color: #1a2332;
+  line-height: 1; /* evita espaço extra acima/abaixo de números grandes */
+}
+ 
+.stat-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 999px; /* efeito pill */
+  width: fit-content;   /* largura se ajusta ao texto, não ocupa a linha toda */
+}
+ 
+ 
+/* ══════════════════════════════════════════════════════
+   MAIN GRID — Layout de 2 colunas (form + lista)
+   ══════════════════════════════════════════════════════ */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* duas colunas iguais */
+  gap: 20px;
+}
+ 
+/*
+  MEDIA QUERY: regras que se aplicam apenas quando a tela
+  for menor que 768px (tablets e celulares).
+  O layout muda de 2 colunas para 1 coluna automaticamente.
+*/
+@media (max-width: 768px) {
+  .main-grid {
+    grid-template-columns: 1fr; /* uma coluna só */
+  }
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 colunas fixas no mobile */
+  }
+}
+ 
+ 
+/* ══════════════════════════════════════════════════════
+   CARDS — Container branco com borda e sombra suave
+   ══════════════════════════════════════════════════════ */
+.card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e8ecf0;
+  padding: 20px;
+}
+ 
+.card-header {
+  margin-bottom: 20px; /* espaço entre o cabeçalho e o conteúdo do card */
+}
+ 
+.card-header h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a2332;
+  margin-bottom: 4px;
+}
+ 
+.card-desc {
+  font-size: 13px;
+  color: #7a8899;
+}
+ 
+ 
+/* ══════════════════════════════════════════════════════
+   FORMULÁRIO — Campos, labels e inputs
+   ══════════════════════════════════════════════════════ */
+.field {
+  margin-bottom: 14px; /* espaço entre cada campo do formulário */
+}
+ 
+.field label {
+  display: block; /* ocupa linha inteira — o input fica abaixo */
+  font-size: 13px;
+  font-weight: 500;
+  color: #3d4f63;
+  margin-bottom: 6px; /* espaço entre label e input */
+}
+ 
+/* Estilos iguais para input, textarea e select */
+.field input,
+.field textarea,
+.field select {
+  width: 100%;         /* ocupa todo o espaço disponível */
+  padding: 9px 12px;
+  border: 1px solid #dde3ea;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit; /* herda a fonte do body (sem isso, inputs usam fonte padrão do OS) */
+  color: #1a2332;
+  background: #fff;
+  transition: border-color 0.15s; /* animação suave na mudança de cor da borda */
+  outline: none; /* remove o contorno padrão feio do navegador */
+}
+ 
+/* Estado de foco: quando o usuário clica no campo */
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: #1c3d7d; /* borda azul ao focar */
+  box-shadow: 0 0 0 3px rgba(28, 61, 125, 0.08); /* anel de foco suave */
+}
+ 
+.field textarea {
+  min-height: 100px;
+  resize: vertical; /* usuário pode redimensionar só na vertical (não horizontal) */
+}
+ 
+/* Dois campos lado a lado */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* duas colunas iguais */
+  gap: 12px;
+}
+ 
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+ 
+/* Botão principal (Criar chamado) */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;            /* espaço entre o ícone e o texto */
+  padding: 9px 18px;
+  background: #1c3d7d; /* azul escuro da marca */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer; /* muda o cursor para mãozinha ao passar o mouse */
+  transition: background 0.15s, transform 0.1s;
+}
+ 
+.btn-primary:hover  { background: #163169; } /* escurece ao passar o mouse */
+.btn-primary:active { transform: scale(0.98); } /* efeito de "apertar" ao clicar */
+ 
+/* Botão secundário (Atualizar lista) */
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  background: #f0f2f5;   /* fundo cinza claro */
+  color: #3d4f63;
+  border: 1px solid #dde3ea;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+ 
+.btn-secondary:hover { background: #e4e8ed; }
+ 
+ 
+/* ══════════════════════════════════════════════════════
+   TICKET ITEMS — Cards de cada chamado na lista
+   ══════════════════════════════════════════════════════ */
+.ticket-item {
+  border: 1px solid #e8ecf0;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  background: #fff;
+  transition: border-color 0.15s; /* animação suave no hover */
+}
+ 
+.ticket-item:hover { border-color: #c0cbda; } /* destaca ao passar o mouse */
+ 
+.ticket-item:last-child { margin-bottom: 0; } /* remove espaço no último item */
+ 
+.ticket-head {
+  display: flex;
+  justify-content: space-between; /* título à esquerda, badge à direita */
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+ 
+.ticket-titulo {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a2332;
+  line-height: 1.4;
+}
+ 
+.ticket-meta {
+  font-size: 11px;
+  color: #7a8899;
+  margin-bottom: 6px;
+}
+ 
+.ticket-desc {
+  font-size: 12px;
+  color: #4d5f73;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  /*
+    TRUNCAR TEXTO em 2 linhas:
+    display: -webkit-box + -webkit-line-clamp é a técnica padrão
+    para limitar texto a N linhas com "..." no final.
+  */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+ 
+.ticket-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap; /* quebra linha se não couber tudo */
+}
+ 
+.ticket-date {
+  font-size: 11px;
+  color: #9aaabb;
+  margin-left: auto; /* empurra a data para o lado direito */
+}
+ 
+ 
+/* ══════════════════════════════════════════════════════
+   BADGES — Etiquetas coloridas de status e prioridade
+   Cada combinação de cores tem significado semântico:
+   vermelho = urgente/alta, amarelo = médio, verde = ok/baixo
+   ══════════════════════════════════════════════════════ */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px; /* efeito pill */
+  white-space: nowrap;  /* impede quebra de linha dentro do badge */
+}
+ 
+/* Badges de PRIORIDADE */
+.badge-alta,   .stat-badge.badge-alta   { background: #fdecea; color: #b71c1c; } /* vermelho */
+.badge-media,  .stat-badge.badge-media  { background: #fff8e1; color: #e65100; } /* laranja */
+.badge-baixa,  .stat-badge.badge-baixa  { background: #e8f5e9; color: #2e7d32; } /* verde */
+ 
+/* Badges de STATUS */
+.badge-aberto,    .stat-badge.badge-aberto    { background: #e3f2fd; color: #0d47a1; } /* azul */
+.badge-andamento, .stat-badge.badge-andamento { background: #fff8e1; color: #e65100; } /* laranja */
+.badge-resolvido, .stat-badge.badge-resolvido { background: #e8f5e9; color: #2e7d32; } /* verde */
+.badge-fechado,   .stat-badge.badge-fechado   { background: #f3e5f5; color: #6a1b9a; } /* roxo */
+ 
+/* Badge de CATEGORIA — neutro, sem cor de alerta */
+.badge-cat {
+  background: #f0f2f5;
+  color: #3d4f63;
+  font-weight: 500;
+}
+ 
+ 
+/* ══════════════════════════════════════════════════════
+   EMPTY STATE — Quando não há chamados
+   ══════════════════════════════════════════════════════ */
+.empty {
+  text-align: center;
+  padding: 32px 0;
+  color: #9aaabb;
+  font-size: 13px;
+}

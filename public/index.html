@@ -1,48 +1,345 @@
 <!doctype html>
+<!--
+  DOCTYPE: Diz pro navegador que este é um documento HTML5 moderno.
+  Sem isso, o navegador entra em "modo de compatibilidade" e renderiza errado.
+-->
+ 
 <html lang="pt-BR">
+<!--
+  lang="pt-BR": Informa ao navegador e leitores de tela que o idioma é português brasileiro.
+  Isso ajuda na acessibilidade e no SEO.
+-->
+ 
 <head>
+  <!--
+    HEAD: Tudo aqui é invisível pro usuário, mas configura a página.
+    O navegador lê o <head> antes de mostrar qualquer coisa na tela.
+  -->
+ 
   <meta charset="utf-8" />
+  <!--
+    CHARSET: Define que o arquivo usa UTF-8.
+    Sem isso, acentos (ã, é, ç) aparecem como caracteres estranhos.
+  -->
+ 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TicketFlow - Interface</title>
+  <!--
+    VIEWPORT: Faz a página funcionar corretamente em celulares.
+    "width=device-width" = ocupa a largura real da tela.
+    "initial-scale=1" = não faz zoom automático.
+    Sem isso, celulares renderizam a página como desktop e fica minúsculo.
+  -->
+ 
+  <title>TicketFlow - Sistema de Chamados</title>
+  <!--
+    TITLE: Texto que aparece na aba do navegador.
+  -->
+ 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!--
+    PRECONNECT: Abre a conexão com o servidor do Google Fonts com antecedência.
+    Reduz o tempo de carregamento da fonte em ~100-300ms.
+    crossorigin: necessário porque é um domínio externo (regra de segurança do navegador).
+  -->
+ 
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <!--
+    FONTE: Carrega a fonte "Plus Jakarta Sans" do Google Fonts.
+    wght@400;500;600 = carrega apenas os pesos que usamos (regular, médio, semibold).
+    display=swap = mostra fonte padrão enquanto a personalizada carrega (evita tela em branco).
+  -->
+ 
   <link rel="stylesheet" href="/app/styles.css" />
+  <!--
+    CSS: Carrega nosso arquivo de estilos.
+    /app/ é o caminho público servido pelo Express (definido no server.js).
+    O CSS sempre vem no <head> para evitar "flash" de conteúdo sem estilo.
+  -->
 </head>
+ 
 <body>
-  <main class="container">
-    <h1>TicketFlow - Chamados</h1>
-
-    <section class="card">
-      <h2>Criar Chamado</h2>
-      <form id="create-form">
-        <label>Título<input name="titulo" required /></label>
-        <label>Descrição<textarea name="descricao" required></textarea></label>
-        <label>Categoria
-          <select name="categoria">
-            <option>Hardware</option>
-            <option>Software</option>
-            <option>Rede</option>
-            <option>Impressora</option>
-            <option>Outros</option>
-          </select>
-        </label>
-        <label>Prioridade
-          <select name="prioridade">
-            <option>Baixa</option>
-            <option>Média</option>
-            <option selected>Alta</option>
-          </select>
-        </label>
-        <div class="actions">
-          <button type="submit">Criar</button>
-          <button type="button" id="refresh">Atualizar lista</button>
+<!--
+  BODY: Tudo aqui é visível para o usuário.
+  O navegador renderiza o <body> de cima para baixo.
+-->
+ 
+  <!-- ═══════════════════════════════════════════
+       HEADER — Barra de navegação fixa no topo
+       Fica sempre visível mesmo ao rolar a página (position: sticky no CSS)
+  ═══════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+      <!--
+        header-inner: div de largura máxima centralizada.
+        Garante que o conteúdo não fique colado nas bordas em telas grandes.
+      -->
+ 
+      <!-- Lado esquerdo: Logo + Nome do sistema -->
+      <div class="header-brand">
+        <div class="brand-icon">
+          <!--
+            SVG inline: ícone desenhado diretamente no HTML.
+            Vantagem: não precisa de requisição HTTP extra (mais rápido que <img>).
+            stroke="currentColor": herda a cor do CSS (color: white no .brand-icon).
+          -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
         </div>
-      </form>
-    </section>
-
-    <section class="card">
-      <h2>Lista de Chamados</h2>
-      <div id="tickets"></div>
-    </section>
+        <div>
+          <div class="brand-name">TicketFlow</div>
+          <div class="brand-sub">Sistema de Chamados</div>
+        </div>
+      </div>
+ 
+      <!-- Lado direito: Indicador de status do sistema -->
+      <div class="header-status">
+        <span class="status-dot"></span> Sistema online
+        <!--
+          status-dot: bolinha verde que pisca (animação @keyframes pulse no CSS).
+          Dá feedback visual de que a aplicação está ativa.
+        -->
+      </div>
+    </div>
+  </header>
+ 
+ 
+  <!-- ═══════════════════════════════════════════
+       MAIN — Conteúdo principal da página
+       <main> é semântico: informa leitores de tela onde está o conteúdo principal.
+  ═══════════════════════════════════════════ -->
+  <main class="container">
+    <!--
+      container: limita a largura máxima e centraliza o conteúdo.
+      Definido no CSS como max-width: 1200px; margin: 0 auto.
+    -->
+ 
+    <!-- ─────────────────────────────────────────
+         WELCOME — Saudação da página
+    ───────────────────────────────────────── -->
+    <div class="welcome">
+      <h1>Bem-vindo de volta 👋</h1>
+      <!--
+        h1: título principal. Deve existir apenas um <h1> por página.
+        Importante para SEO e acessibilidade.
+      -->
+      <p>Acompanhe seus chamados e abra novas solicitações para o time de suporte.</p>
+    </div>
+ 
+ 
+    <!-- ─────────────────────────────────────────
+         STATS GRID — Cards de métricas
+         Preenchidos dinamicamente pelo app.js via updateStats().
+         Os IDs são os alvos que o JavaScript encontra e atualiza.
+    ───────────────────────────────────────── -->
+    <div class="stats-grid" id="stats-grid">
+ 
+      <div class="stat-card">
+        <div class="stat-label">Abertos</div>
+        <div class="stat-value" id="stat-abertos">0</div>
+        <!-- id="stat-abertos": o JS busca este elemento e insere o número real -->
+        <span class="stat-badge badge-aberto">Abertos</span>
+      </div>
+ 
+      <div class="stat-card">
+        <div class="stat-label">Em andamento</div>
+        <div class="stat-value" id="stat-andamento">0</div>
+        <span class="stat-badge badge-andamento">Em andamento</span>
+      </div>
+ 
+      <div class="stat-card">
+        <div class="stat-label">Fechados</div>
+        <div class="stat-value" id="stat-fechados">0</div>
+        <span class="stat-badge badge-fechado">Fechados</span>
+      </div>
+ 
+      <div class="stat-card">
+        <div class="stat-label">Alta</div>
+        <div class="stat-value" id="stat-alta">0</div>
+        <span class="stat-badge badge-alta">Alta</span>
+      </div>
+ 
+      <div class="stat-card">
+        <div class="stat-label">Média</div>
+        <div class="stat-value" id="stat-media">0</div>
+        <span class="stat-badge badge-media">Média</span>
+      </div>
+ 
+      <div class="stat-card">
+        <div class="stat-label">Baixa</div>
+        <div class="stat-value" id="stat-baixa">0</div>
+        <span class="stat-badge badge-baixa">Baixa</span>
+      </div>
+ 
+    </div>
+ 
+ 
+    <!-- ─────────────────────────────────────────
+         MAIN GRID — Layout de 2 colunas
+         Formulário à esquerda, lista à direita.
+         No mobile (CSS media query) vira 1 coluna automaticamente.
+    ───────────────────────────────────────── -->
+    <div class="main-grid">
+ 
+      <!-- ───────────────────────────────────────
+           FORMULÁRIO DE CRIAÇÃO DE CHAMADO
+           <section> é semântico: agrupa conteúdo relacionado.
+      ─────────────────────────────────────── -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Abrir novo chamado</h2>
+          <p class="card-desc">Descreva o problema com o máximo de detalhes para agilizar o atendimento.</p>
+        </div>
+ 
+        <!--
+          FORM id="create-form": capturado no app.js pelo addEventListener.
+          O evento "submit" é interceptado pelo JS para enviar via fetch (AJAX),
+          sem recarregar a página — o usuário não perde o que estava fazendo.
+        -->
+        <form id="create-form">
+ 
+          <!-- Campo: Título do chamado -->
+          <div class="field">
+            <label for="titulo">Título</label>
+            <!--
+              for="titulo": vincula o label ao input com id="titulo".
+              Clicar no label foca o input. Obrigatório para acessibilidade.
+            -->
+            <input
+              id="titulo"
+              name="titulo"
+              placeholder="Ex: Computador não liga após reinício"
+              required
+            />
+            <!--
+              name="titulo": chave usada pelo FormData no JavaScript para montar o JSON.
+              required: o HTML bloqueia o envio se o campo estiver vazio.
+              placeholder: texto de dica que some quando o usuário digita.
+            -->
+          </div>
+ 
+          <!-- Campo: Descrição detalhada -->
+          <div class="field">
+            <label for="descricao">Descrição</label>
+            <textarea
+              id="descricao"
+              name="descricao"
+              placeholder="Detalhe o que está acontecendo, mensagens de erro, passos para reproduzir..."
+              required
+            ></textarea>
+            <!--
+              textarea: campo de texto multilinha (diferente do input de linha única).
+              Ideal para textos longos como descrições de problemas.
+            -->
+          </div>
+ 
+          <!-- Campos lado a lado: Categoria e Prioridade -->
+          <div class="field-row">
+            <!--
+              field-row: CSS grid com 2 colunas iguais.
+              Coloca os selects lado a lado economizando espaço vertical.
+            -->
+ 
+            <div class="field">
+              <label for="categoria">Categoria</label>
+              <select id="categoria" name="categoria">
+                <!--
+                  select: lista suspensa (dropdown).
+                  Força o usuário a escolher um valor válido da lista,
+                  evitando erros de validação na API (que só aceita valores específicos).
+                -->
+                <option>Hardware</option>
+                <option>Software</option>
+                <option>Rede</option>
+                <option>Impressora</option>
+                <option>Outros</option>
+              </select>
+            </div>
+ 
+            <div class="field">
+              <label for="prioridade">Prioridade</label>
+              <select id="prioridade" name="prioridade">
+                <option>Baixa</option>
+                <option selected>Média</option>
+                <!-- selected: define "Média" como valor padrão ao carregar a página -->
+                <option>Alta</option>
+              </select>
+            </div>
+ 
+          </div>
+ 
+          <!-- Botões de ação -->
+          <div class="form-actions">
+ 
+            <!--
+              type="button": NÃO dispara o submit do formulário.
+              Usado apenas para acionar o refresh da lista via JavaScript.
+              id="refresh": o app.js captura este botão com getElementById.
+            -->
+            <button type="button" id="refresh" class="btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+              </svg>
+              Atualizar lista
+            </button>
+ 
+            <!--
+              type="submit": dispara o evento "submit" do formulário.
+              O JavaScript intercepta com preventDefault() e envia via fetch.
+              Durante o envio, o botão é desabilitado para evitar duplo clique.
+            -->
+            <button type="submit" class="btn-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Criar chamado
+            </button>
+ 
+          </div>
+        </form>
+      </section>
+ 
+ 
+      <!-- ───────────────────────────────────────
+           LISTA DE CHAMADOS
+           O conteúdo é gerado 100% pelo JavaScript (renderTickets).
+           id="tickets" é o container onde o JS injeta o HTML.
+      ─────────────────────────────────────── -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Chamados recentes</h2>
+          <p class="card-desc" id="tickets-count">Carregando...</p>
+          <!--
+            id="tickets-count": o JS atualiza este texto dinamicamente.
+            Ex: "3 chamados registrados"
+          -->
+        </div>
+        <div id="tickets"></div>
+        <!--
+          id="tickets": div vazia que o JavaScript preenche com innerHTML.
+          Cada ticket vira um card HTML gerado pela função renderTickets().
+        -->
+      </section>
+ 
+    </div>
   </main>
+ 
+ 
+  <!--
+    SCRIPT ao final do body — REGRA IMPORTANTE:
+    O JS é carregado DEPOIS de todo o HTML.
+    Isso garante que os elementos (form, buttons, divs) já existem no DOM
+    quando o JavaScript tenta encontrá-los com getElementById ou querySelector.
+    Se o script fosse no <head>, o JS rodaria antes do HTML existir e daria erro.
+  -->
   <script src="/app/app.js"></script>
+ 
 </body>
 </html>
