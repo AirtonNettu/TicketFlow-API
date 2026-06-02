@@ -91,3 +91,31 @@ Este projeto está licenciado sob a licença MIT. Consulte `LICENSE` para o text
 ---
 
 Se preferir, eu posso manter o `README.md` em inglês e este arquivo como versão PT-BR (recomendado para portfólio).
+
+
+## TicketFlow v2
+
+A versão 2 do TicketFlow está planejada como uma reconstrução completa do projeto, com foco em TypeScript, banco de dados, autenticação, autorização por perfis e arquitetura mais robusta.
+
+A proposta da v2 inclui:
+
+- Backend com Node.js, TypeScript e Express/Fastify
+- Arquitetura baseada em serviços: Auth, Users, Tickets e Notifications
+- API Gateway para autenticação, rate limit, HTTPS e roteamento
+- PostgreSQL com Prisma ORM
+- Autenticação com JWT, access token e refresh token
+- Senhas protegidas com bcrypt
+- Perfis de acesso: usuário, técnico e admin/gerente
+- Redis + BullMQ para notificações assíncronas
+- Frontend com React, Axios e React Query
+- Deploy com Railway e Vercel
+- CI/CD com GitHub Actions
+
+A documentação inicial da v2 está disponível em:
+
+- [`docs/architecture-v2.md`](docs/architecture-v2.md)
+- [`docs/api-contracts-v2.md`](docs/api-contracts-v2.md)
+- [`docs/implementation-checklist-v2.md`](docs/implementation-checklist-v2.md)
+- [`docs/security-checklist.md`](docs/security-checklist.md)
+
+A v1 permanece como uma versão focada nos fundamentos de JavaScript, Node.js, Express, rotas, controllers, services, validação e persistência em JSON.

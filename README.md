@@ -169,3 +169,31 @@ Contributions are welcome. Please open issues or submit pull requests on the Git
 - Add JWT authentication
 - Web dashboard
 - User and technician management
+
+
+## TicketFlow v2
+
+TicketFlow v2 is planned as a complete rebuild of the project, focused on TypeScript, database persistence, authentication, role-based authorization, and a more robust architecture.
+
+The v2 proposal includes:
+
+- Backend with Node.js, TypeScript, and Express/Fastify
+- Service-based architecture: Auth, Users, Tickets, and Notifications
+- API Gateway for authentication, rate limiting, HTTPS, and routing
+- PostgreSQL with Prisma ORM
+- JWT authentication with access and refresh tokens
+- Password hashing with bcrypt
+- Access roles: user, technician, and admin/manager
+- Redis + BullMQ for asynchronous notifications
+- Frontend with React, Axios, and React Query
+- Deployment with Railway and Vercel
+- CI/CD with GitHub Actions
+
+The initial v2 documentation is available at:
+
+- [`docs/architecture-v2.md`](docs/architecture-v2.md)
+- [`docs/api-contracts-v2.md`](docs/api-contracts-v2.md)
+- [`docs/implementation-checklist-v2.md`](docs/implementation-checklist-v2.md)
+- [`docs/security-checklist.md`](docs/security-checklist.md)
+
+The current v1 remains focused on JavaScript fundamentals, Node.js, Express, routes, controllers, services, validation, and JSON-based persistence.
