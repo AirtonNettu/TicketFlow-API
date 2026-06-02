@@ -108,9 +108,6 @@ app.use('/app', express.static(path.join(__dirname, '..', 'public')));
 // Registra as rotas de tickets sob o caminho base /tickets.
 app.use('/tickets', ticketRoutes);
 
-// Registra as rotas de tickets sob o caminho base /tickets.
-app.use('/tickets', ticketRoutes);
-
 // Middleware para lidar com rotas não encontradas e erros gerais.
 app.use(notFoundHandler);
 app.use(errorHandler);
