@@ -5,9 +5,11 @@ const priorities = ['Baixa', 'Média', 'Alta'];
 const statuses = ['Aberto', 'Em andamento', 'Resolvido', 'Fechado'];
 
 class ApiError extends Error {
-  constructor(message, statusCode = 400) {
+  constructor(message, statusCode = 400, code = 'BAD_REQUEST', details = []) {
     super(message);
     this.statusCode = statusCode;
+    this.code = code;
+    this.details = details;
   }
 }
 
@@ -48,6 +50,38 @@ function validateStatus(status) {
   }
 }
 
+function validateTicketFilters(query) {
+  const filters = {
+    status: query.status,
+    categoria: query.categoria || query.category,
+    prioridade: query.prioridade || query.priority,
+    page: Number.parseInt(query.page || '1', 10),
+    limit: Number.parseInt(query.limit || '20', 10),
+  };
+
+  if (filters.status && !statuses.includes(filters.status)) {
+    throw new ApiError('Status inválido. Valores válidos: Aberto, Em andamento, Resolvido, Fechado.', 400);
+  }
+
+  if (filters.categoria && !categories.includes(filters.categoria)) {
+    throw new ApiError('Categoria inválida. Valores válidos: Hardware, Software, Rede, Impressora, Outros.', 400);
+  }
+
+  if (filters.prioridade && !priorities.includes(filters.prioridade)) {
+    throw new ApiError('Prioridade inválida. Valores válidos: Baixa, Média, Alta.', 400);
+  }
+
+  if (!Number.isInteger(filters.page) || filters.page < 1) {
+    throw new ApiError('Page deve ser um número inteiro maior ou igual a 1', 400);
+  }
+
+  if (!Number.isInteger(filters.limit) || filters.limit < 1 || filters.limit > 100) {
+    throw new ApiError('Limit deve ser um número inteiro entre 1 e 100', 400);
+  }
+
+  return filters;
+}
+
 module.exports = {
   categories,
   priorities,
@@ -55,4 +89,5 @@ module.exports = {
   ApiError,
   validateTicketPayload,
   validateStatus,
+  validateTicketFilters,
 };

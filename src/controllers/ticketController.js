@@ -1,7 +1,12 @@
 // Controller de tickets: recebe as requisições HTTP, valida dados e delega a lógica de negócio.
 // Este arquivo não faz persistência em disco; ele apenas organiza a entrada e saída da API.
 const ticketService = require('../services/ticketService');
-const { validateTicketPayload, validateStatus, ApiError } = require('../utils/validation');
+const {
+  validateTicketPayload,
+  validateStatus,
+  validateTicketFilters,
+  ApiError,
+} = require('../utils/validation');
 
 // Cria um novo chamado a partir do body da requisição.
 async function createTicket(req, res, next) {
@@ -17,7 +22,8 @@ async function createTicket(req, res, next) {
 // Retorna todos os chamados armazenados.
 async function getAllTickets(req, res, next) {
   try {
-    const tickets = await ticketService.getAllTickets();
+    const filters = validateTicketFilters(req.query);
+    const tickets = await ticketService.getAllTickets(filters);
     return res.json(tickets);
   } catch (error) {
     return next(error);

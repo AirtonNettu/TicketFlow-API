@@ -53,7 +53,7 @@ npm run dev
 - `GET /` — Rota raiz (link para documentação)
 - `GET /docs` — Documentação em HTML
 - `POST /tickets` — Criar um novo chamado
-- `GET /tickets` — Listar todos os chamados
+- `GET /tickets` — Listar chamados com filtros e paginação
 - `GET /tickets/:id` — Obter chamado por ID
 - `PUT /tickets/:id` — Atualizar chamado completo
 - `PATCH /tickets/:id/status` — Atualizar apenas o status
@@ -82,6 +82,38 @@ curl -X POST http://localhost:3000/tickets \
     "categoria": "Impressora",
     "prioridade": "Alta"
   }'
+```
+
+Listar chamados filtrando por status, prioridade e paginação:
+
+```bash
+curl "http://localhost:3000/tickets?status=Aberto&prioridade=Alta&page=1&limit=10"
+```
+
+Resposta da listagem:
+
+```json
+{
+  "data": [],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 0,
+    "totalPages": 1
+  }
+}
+```
+
+Erros seguem o padrão:
+
+```json
+{
+  "error": {
+    "code": "BAD_REQUEST",
+    "message": "Dados inválidos",
+    "details": []
+  }
+}
 ```
 
 ## Licença

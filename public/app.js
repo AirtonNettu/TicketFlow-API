@@ -40,7 +40,8 @@ async function fetchTickets() {
     Se der erro (404, 500...), retornamos array vazio para não quebrar a UI.
   */
  
-  return res.json();
+  const result = await res.json();
+  return Array.isArray(result) ? result : result.data;
   /*
     res.json(): converte o texto JSON da resposta em objeto JavaScript.
     Também é assíncrono — retornamos a Promise direto (o chamador usa await).
@@ -252,7 +253,7 @@ async function createTicket(formData) {
   /* Trata erro da API */
   if (!res.ok) {
     const err = await res.json(); /* pega a mensagem de erro do servidor */
-    alert('Erro: ' + (err.error || 'Erro desconhecido'));
+    alert('Erro: ' + (err.error?.message || err.error || 'Erro desconhecido'));
     return null;
   }
  

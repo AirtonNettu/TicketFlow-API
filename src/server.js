@@ -56,7 +56,7 @@ app.get('/docs', (req, res) => {
         </thead>
         <tbody>
           <tr><td>POST</td><td>/tickets</td><td>Criar um novo chamado</td></tr>
-          <tr><td>GET</td><td>/tickets</td><td>Listar todos os chamados</td></tr>
+          <tr><td>GET</td><td>/tickets</td><td>Listar chamados com filtros e paginação</td></tr>
           <tr><td>GET</td><td>/tickets/:id</td><td>Buscar chamado por ID</td></tr>
           <tr><td>PUT</td><td>/tickets/:id</td><td>Atualizar chamado completo</td></tr>
           <tr><td>PATCH</td><td>/tickets/:id/status</td><td>Atualizar apenas o status</td></tr>
@@ -94,6 +94,8 @@ app.get('/docs', (req, res) => {
 {
   "status": "Em andamento"
 }</code></pre>
+      <h3>Listar chamados filtrados</h3>
+      <pre><code>GET /tickets?status=Aberto&prioridade=Alta&page=1&limit=10</code></pre>
     </div>
   </div>
 </body>

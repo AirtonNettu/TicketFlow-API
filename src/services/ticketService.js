@@ -32,9 +32,39 @@ async function writeData(tickets) {
   await fs.writeFile(dataFile, JSON.stringify(tickets, null, 2), 'utf8');
 }
 
-// Retorna todos os tickets.
-async function getAllTickets() {
-  return readData();
+// Retorna tickets com filtros simples e paginacao.
+async function getAllTickets(filters = {}) {
+  const tickets = await readData();
+  let filteredTickets = tickets;
+
+  if (filters.status) {
+    filteredTickets = filteredTickets.filter((ticket) => ticket.status === filters.status);
+  }
+
+  if (filters.categoria) {
+    filteredTickets = filteredTickets.filter((ticket) => ticket.categoria === filters.categoria);
+  }
+
+  if (filters.prioridade) {
+    filteredTickets = filteredTickets.filter((ticket) => ticket.prioridade === filters.prioridade);
+  }
+
+  const page = filters.page || 1;
+  const limit = filters.limit || 20;
+  const total = filteredTickets.length;
+  const totalPages = Math.ceil(total / limit) || 1;
+  const start = (page - 1) * limit;
+  const data = filteredTickets.slice(start, start + limit);
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+  };
 }
 
 // Busca um ticket pelo ID e retorna um erro se não existir.
