@@ -1,8 +1,6 @@
-// Serviço de tickets: aqui está a lógica de negócio e a persistência em arquivo JSON.
-// Este módulo lê e grava no arquivo `src/data/chamados.json` e retorna os resultados para o controller.
-const fs = require('fs').promises;
-const path = require('path');
+// Serviço de tickets: aqui está a lógica de negócio e a integração com o banco de dados via repository.
 const { v4: uuidv4 } = require('uuid');
+const ticketRepository = require('../repositories/ticketRepository');
 const {
   categories,
   priorities,
@@ -11,66 +9,14 @@ const {
   validateStatus,
 } = require('../utils/validation');
 
-const dataFile = path.join(__dirname, '..', 'data', 'chamados.json');
-
-// Lê o arquivo JSON e converte em array de tickets.
-async function readData() {
-  try {
-    const file = await fs.readFile(dataFile, 'utf8');
-    return JSON.parse(file);
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      // Se o arquivo não existir, retorna lista vazia para iniciar.
-      return [];
-    }
-    throw error;
-  }
-}
-
-// Grava a lista de tickets no arquivo JSON.
-async function writeData(tickets) {
-  await fs.writeFile(dataFile, JSON.stringify(tickets, null, 2), 'utf8');
-}
-
-// Retorna tickets com filtros simples e paginacao.
+// Retorna tickets com filtros e paginacao chamando o repositorio.
 async function getAllTickets(filters = {}) {
-  const tickets = await readData();
-  let filteredTickets = tickets;
-
-  if (filters.status) {
-    filteredTickets = filteredTickets.filter((ticket) => ticket.status === filters.status);
-  }
-
-  if (filters.categoria) {
-    filteredTickets = filteredTickets.filter((ticket) => ticket.categoria === filters.categoria);
-  }
-
-  if (filters.prioridade) {
-    filteredTickets = filteredTickets.filter((ticket) => ticket.prioridade === filters.prioridade);
-  }
-
-  const page = filters.page || 1;
-  const limit = filters.limit || 20;
-  const total = filteredTickets.length;
-  const totalPages = Math.ceil(total / limit) || 1;
-  const start = (page - 1) * limit;
-  const data = filteredTickets.slice(start, start + limit);
-
-  return {
-    data,
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages,
-    },
-  };
+  return await ticketRepository.getAllTickets(filters);
 }
 
 // Busca um ticket pelo ID e retorna um erro se não existir.
 async function getTicketById(id) {
-  const tickets = await readData();
-  const ticket = tickets.find((item) => item.id === id);
+  const ticket = await ticketRepository.getTicketById(id);
   if (!ticket) {
     throw new ApiError('Chamado não encontrado', 404);
   }
@@ -79,7 +25,6 @@ async function getTicketById(id) {
 
 // Cria um novo ticket com UUID e data de criação.
 async function createTicket(payload) {
-  const tickets = await readData();
   const createdAt = new Date().toISOString();
   const ticket = {
     id: uuidv4(),
@@ -91,16 +36,13 @@ async function createTicket(payload) {
     createdAt,
   };
 
-  tickets.push(ticket);
-  await writeData(tickets);
-  return ticket;
+  return await ticketRepository.createTicket(ticket);
 }
 
 // Atualiza um ticket existente com os campos enviados.
 async function updateTicket(id, payload) {
-  const tickets = await readData();
-  const index = tickets.findIndex((item) => item.id === id);
-  if (index === -1) {
+  const currentTicket = await ticketRepository.getTicketById(id);
+  if (!currentTicket) {
     throw new ApiError('Chamado não encontrado', 404);
   }
 
@@ -117,39 +59,37 @@ async function updateTicket(id, payload) {
   }
 
   const updatedTicket = {
-    ...tickets[index],
+    ...currentTicket,
     ...payload,
   };
 
-  tickets[index] = updatedTicket;
-  await writeData(tickets);
-  return updatedTicket;
+  return await ticketRepository.updateTicket(id, updatedTicket);
 }
 
 // Atualiza apenas o status de um ticket.
 async function updateStatus(id, status) {
   validateStatus(status);
-  const tickets = await readData();
-  const index = tickets.findIndex((item) => item.id === id);
-  if (index === -1) {
+  const currentTicket = await ticketRepository.getTicketById(id);
+  if (!currentTicket) {
     throw new ApiError('Chamado não encontrado', 404);
   }
 
-  tickets[index].status = status;
-  await writeData(tickets);
-  return tickets[index];
+  await ticketRepository.updateStatus(id, status);
+
+  return {
+    ...currentTicket,
+    status
+  };
 }
 
-// Remove um ticket do arquivo JSON.
+// Remove um ticket do banco.
 async function deleteTicket(id) {
-  const tickets = await readData();
-  const index = tickets.findIndex((item) => item.id === id);
-  if (index === -1) {
+  const currentTicket = await ticketRepository.getTicketById(id);
+  if (!currentTicket) {
     throw new ApiError('Chamado não encontrado', 404);
   }
 
-  tickets.splice(index, 1);
-  await writeData(tickets);
+  await ticketRepository.deleteTicket(id);
 }
 
 module.exports = {

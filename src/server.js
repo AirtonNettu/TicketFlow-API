@@ -1,5 +1,6 @@
 // Ponto de entrada da aplicação Express.
 // Este arquivo configura o servidor, carrega as rotas principais e os handlers de erro.
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const ticketRoutes = require('./routes/ticketRoutes');
