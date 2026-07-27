@@ -1,5 +1,11 @@
-// Define as rotas da API de chamados e conecta cada rota ao controller responsável.
-// Esta camada não implementa a lógica de negócio, apenas mapeia endpoint -> ação.
+/**
+ * Ticket Routes
+ *
+ * Responsabilidade: Mapear URLs REST e métodos HTTP (GET, POST, PUT, DELETE, PATCH)
+ * para os métodos corretos do Controller correspondente.
+ * Esta camada atua estritamente como um roteador de tráfego, garantindo o isolamento
+ * entre a definição da API HTTP e o código que a executa.
+ */
 const express = require('express');
 const router = express.Router();
 const ticketController = require('../controllers/ticketController');
