@@ -1,11 +1,16 @@
 // Ponto de entrada da aplicação Express.
 // Este arquivo configura o servidor, carrega as rotas principais e os handlers de erro.
+require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const ticketRoutes = require('./routes/ticketRoutes');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
+
+// Permite CORS para que a API seja acessível por frontends em diferentes origens
+app.use(cors());
 
 // Permite que o servidor receba e parseie JSON no corpo das requisições.
 app.use(express.json());

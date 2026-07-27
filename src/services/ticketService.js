@@ -29,6 +29,15 @@ async function readData() {
 
 // Grava a lista de tickets no arquivo JSON.
 async function writeData(tickets) {
+  // Garante que a pasta exista antes de gravar
+  const dataDir = path.dirname(dataFile);
+  try {
+    await fs.mkdir(dataDir, { recursive: true });
+  } catch (err) {
+    // ignora erro se a pasta já existe
+    if (err.code !== 'EEXIST') throw err;
+  }
+
   await fs.writeFile(dataFile, JSON.stringify(tickets, null, 2), 'utf8');
 }
 
