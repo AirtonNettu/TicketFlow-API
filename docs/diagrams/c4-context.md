@@ -26,3 +26,21 @@ flowchart TB
 ## Explicação Técnica (Visão Engenheiro)
 O nível de Contexto é desenhado primordialmente para o Product Owner e os tomadores de decisão (Stakeholders) validarem o negócio (Domínio). Note a ausência deliberada da menção "Node.js" ou "JSON".
 As arestas (linhas) evidenciam comportamentos de negócio, definindo com clareza as Personas: o usuário gerador de demanda (Colaborador) e o resolvedor (TI).
+# C4 Context Diagram
+
+## Diagram
+
+```mermaid
+C4Context
+    title System Context diagram for TicketFlow API
+
+    Person(user, "User / Support Analyst", "A support analyst or regular user managing internal IT operations.")
+    System(ticketflow, "TicketFlow API", "Allows users to create, manage, track, and filter technical support tickets.")
+
+    Rel(user, ticketflow, "Manages tickets using", "HTTP/REST")
+```
+
+## Explanation
+
+The Context Diagram provides the big-picture view of the system.
+In this case, the **User or Support Analyst** interacts directly with the **TicketFlow API** through HTTP REST endpoints. Currently, the system operates standalone, maintaining its state independently without relying on external services (like a separate authentication provider or email service, which could be future enhancements).

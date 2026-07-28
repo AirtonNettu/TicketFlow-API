@@ -49,3 +49,53 @@ sequenceDiagram
 
 ## Explicação Técnica (Visão Engenheiro)
 O diagrama de sequência explicita o tempo de vida e os caminhos (Branches - Alternativas). Em um sistema moderno, este desenho ilustra exatamente a jornada síncrona Request/Response bloqueante base do REST. E evidencia um ponto de dor profundo para melhoria e debate técnico ("Ponto Crítico I/O"), que sinaliza que não importa o quão rápido a validação ocorra, o gargalo e lentidão estará ditado pela velocidade de leitura escrita total do arquivo de dados pelo Sistema Operacional físico da máquina.
+# Request Flow Diagram
+
+## Diagram
+
+```mermaid
+sequenceDiagram
+    actor Client
+    participant Server as Express Server
+    participant Middleware as Middleware (ErrorHandler)
+    participant Route as Ticket Routes
+    participant Controller as Ticket Controller
+    participant Service as Ticket Service
+    participant Repo as Ticket Repository
+    participant DB as SQLite DB
+
+    Client->>Server: HTTP Request (e.g., POST /tickets)
+    Server->>Middleware: Parse JSON Body
+    Middleware->>Route: Forward Request
+    Route->>Controller: Call appropriate action
+
+    activate Controller
+    Controller->>Service: Validate input & call createTicket()
+
+    activate Service
+    Service->>Repo: Assign UUID & call DB method
+
+    activate Repo
+    Repo->>DB: Execute INSERT SQL
+    DB-->>Repo: Return success
+    Repo-->>Service: Return created ticket
+    deactivate Repo
+
+    Service-->>Controller: Return created ticket
+    deactivate Service
+
+    Controller-->>Client: HTTP 201 Created (JSON Response)
+    deactivate Controller
+
+    %% Error Handling path if any error occurs
+    Note over Controller,Repo: If Error occurs anywhere...
+    Controller--xMiddleware: next(error)
+    Middleware-->>Client: HTTP 400/500 (JSON Error Response)
+```
+
+## Explanation
+
+The Request Flow Diagram is a sequence chart that illustrates exactly how a single HTTP Request (for example, creating a new ticket) travels down the application layers and comes back.
+It emphasizes the strictly linear top-down flow of dependencies:
+`Client -> Route -> Controller -> Service -> Repository -> Database`.
+It also demonstrates how the centralized `ErrorHandler` middleware catches any bubbling errors triggered within the lower levels.
