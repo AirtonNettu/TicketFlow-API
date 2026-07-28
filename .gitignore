@@ -23,4 +23,3 @@ coverage/
 
 # OS generated files
 Thumbs.db
-src/data/database.sqlite
