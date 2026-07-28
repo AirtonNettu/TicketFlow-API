@@ -1,9 +1,22 @@
-// Utilitários de validação para o sistema de tickets.
-// Define os valores válidos e lança erros com mensagens amigáveis quando algo estiver incorreto.
+/**
+ * Validation Utils
+ *
+ * Responsabilidade: Isolar toda a lógica de validação de dados de entrada e
+ * manter os domínios (constantes permitidas) centralizados.
+ * Decisão arquitetural: Construído usando verificações puras em JS (Sem uso de libs como Joi/Zod)
+ * para minimizar dependências em projetos educacionais. Em cenários reais,
+ * essas validações costumam ser feitas através de Data Transfer Objects (DTOs)
+ * e schemas fortemente tipados.
+ */
 const categories = ['Hardware', 'Software', 'Rede', 'Impressora', 'Outros'];
 const priorities = ['Baixa', 'Média', 'Alta'];
 const statuses = ['Aberto', 'Em andamento', 'Resolvido', 'Fechado'];
 
+/**
+ * Custom Error Class
+ * Estende a classe Error nativa para permitir o disparo de exceções
+ * com mapeamento direto para HTTP Status Codes e Códigos internos de erro.
+ */
 class ApiError extends Error {
   constructor(message, statusCode = 400, code = 'BAD_REQUEST', details = []) {
     super(message);
@@ -13,8 +26,14 @@ class ApiError extends Error {
   }
 }
 
-// Valida o payload de criação ou atualização de chamados.
-// Quando requireAllFields é true, exige todos os campos obrigatórios.
+/**
+ * Avalia se o corpo (payload) da requisição possui formato e dados válidos para a entidade Ticket.
+ *
+ * @param {Object} payload - Dados recebidos na requisição (req.body).
+ * @param {boolean} requireAllFields - Controla se a validação é estrita (POST - exigindo todos os campos)
+ *                                     ou flexível (PUT/PATCH - aceitando envio parcial).
+ * @throws {ApiError} Dispara um erro HTTP 400 (Bad Request) caso haja violação dos dados.
+ */
 function validateTicketPayload(payload, requireAllFields = true) {
   const requiredFields = ['titulo', 'descricao', 'categoria', 'prioridade'];
 

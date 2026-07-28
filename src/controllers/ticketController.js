@@ -1,5 +1,10 @@
-// Controller de tickets: recebe as requisições HTTP, valida dados e delega a lógica de negócio.
-// Este arquivo não faz persistência em disco; ele apenas organiza a entrada e saída da API.
+/**
+ * Ticket Controller
+ *
+ * Responsabilidade: Intermediar as requisições HTTP (Rotas) e a Regra de Negócio (Services).
+ * Garante que a entrada (req.body, req.query) obedece aos contratos esperados antes de
+ * acionar o processamento pesado. Em caso de falha, repassa o erro para o middleware central.
+ */
 const ticketService = require('../services/ticketService');
 const {
   validateTicketPayload,
@@ -8,7 +13,15 @@ const {
   ApiError,
 } = require('../utils/validation');
 
-// Cria um novo chamado a partir do body da requisição.
+/**
+ * Responsável pela criação de um novo chamado (Ticket).
+ *
+ * Fluxo:
+ * 1. Extrai o payload da requisição (req.body).
+ * 2. Invoca validateTicketPayload para garantir presença e integridade dos campos obrigatórios.
+ * 3. Repassa os dados validados ao Service para geração de ID, Timestamp e persistência.
+ * 4. Retorna o objeto criado com HTTP Status 201 (Created).
+ */
 async function createTicket(req, res, next) {
   try {
     validateTicketPayload(req.body, true);
@@ -19,7 +32,15 @@ async function createTicket(req, res, next) {
   }
 }
 
-// Retorna todos os chamados armazenados.
+/**
+ * Responsável por listar chamados aplicando paginação e filtros dinâmicos.
+ *
+ * Fluxo:
+ * 1. Extrai a query string da requisição (req.query).
+ * 2. Valida se os filtros solicitados (status, prioridade) são permitidos.
+ * 3. Delega ao Service a busca e o fatiamento (slice) dos dados em memória.
+ * 4. Retorna a lista paginada e os metadados (total, páginas) com HTTP Status 200.
+ */
 async function getAllTickets(req, res, next) {
   try {
     const filters = validateTicketFilters(req.query);
@@ -30,7 +51,15 @@ async function getAllTickets(req, res, next) {
   }
 }
 
-// Busca um chamado específico pelo ID passado na rota.
+/**
+ * Recupera os detalhes de um chamado específico através do seu UUID.
+ *
+ * Fluxo:
+ * 1. Extrai o parâmetro de rota :id (req.params.id).
+ * 2. Solicita ao Service a busca desse ID na base de dados.
+ * 3. Se não existir, o Service lançará uma ApiError(404), que será capturada pelo 'catch'.
+ * 4. Retorna o objeto encontrado.
+ */
 async function getTicketById(req, res, next) {
   try {
     const ticket = await ticketService.getTicketById(req.params.id);
@@ -40,7 +69,15 @@ async function getTicketById(req, res, next) {
   }
 }
 
-// Atualiza os campos de um chamado existente.
+/**
+ * Substituição total ou parcial (PUT) de um chamado existente.
+ *
+ * Fluxo:
+ * 1. Verifica se a requisição contém um corpo válido.
+ * 2. Impede ataques de Injeção bloqueando campos não mapeados em 'allowedUpdates' (ex: forçar mudança de ID).
+ * 3. Valida os dados aceitos (sem exigir que todos estejam presentes, requireAllFields = false).
+ * 4. Delega a sobreposição de dados (merge) ao Service.
+ */
 async function updateTicket(req, res, next) {
   try {
     const allowedUpdates = ['titulo', 'descricao', 'categoria', 'prioridade', 'status'];
@@ -65,7 +102,13 @@ async function updateTicket(req, res, next) {
   }
 }
 
-// Atualiza somente o status do chamado.
+/**
+ * Operação atômica (PATCH) focada apenas na evolução do status do ticket.
+ *
+ * Fluxo:
+ * 1. Valida de forma isolada se a string de status enviada é válida no ciclo de vida (ex: "Em andamento").
+ * 2. Delega ao Service a localização do ticket e alteração apenas da propriedade status.
+ */
 async function updateStatus(req, res, next) {
   try {
     validateStatus(req.body.status);
@@ -76,7 +119,14 @@ async function updateStatus(req, res, next) {
   }
 }
 
-// Deleta um chamado existente.
+/**
+ * Exclusão lógica/física de um ticket pelo ID.
+ *
+ * Fluxo:
+ * 1. Passa o ID ao Service.
+ * 2. Se o registro for deletado com sucesso do banco (JSON),
+ *    retorna HTTP Status 204 (No Content) indicando que a ação foi concluída sem corpo de resposta.
+ */
 async function deleteTicket(req, res, next) {
   try {
     await ticketService.deleteTicket(req.params.id);

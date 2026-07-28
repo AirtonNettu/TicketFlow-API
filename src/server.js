@@ -1,13 +1,25 @@
-// Ponto de entrada da aplicação Express.
-// Este arquivo configura o servidor, carrega as rotas principais e os handlers de erro.
+/**
+ * Ponto de entrada (Entrypoint) da aplicação Express.
+ *
+ * Responsabilidade: Orquestrar a inicialização do servidor, aplicar configurações globais
+ * (CORS, Body Parser), inicializar o roteador principal e engatar os interceptadores de erro.
+ * Não deve conter nenhuma regra de negócio.
+ */
+require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const ticketRoutes = require('./routes/ticketRoutes');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
 
-// Permite que o servidor receba e parseie JSON no corpo das requisições.
+// Habilita o Cross-Origin Resource Sharing. Essencial para que SPAs (React/Vue)
+// rodando em outras portas/domínios possam consumir esta API via navegador.
+app.use(cors());
+
+// Habilita o parse automático de corpos de requisição (req.body)
+// que chegam com o Content-Type 'application/json'.
 app.use(express.json());
 
 // Rota raiz com informações básicas da API.
@@ -104,13 +116,17 @@ app.get('/docs', (req, res) => {
   return res.send(html);
 });
 
-// Serve a interface simples (front-end) em /app
+// Serve uma interface visual simples (HTML/JS) embarcada para fins de demonstração,
+// mapeando a pasta 'public' física para o caminho web '/app'.
 app.use('/app', express.static(path.join(__dirname, '..', 'public')));
 
-// Registra as rotas de tickets sob o caminho base /tickets.
+// Injeta o mapeamento de sub-rotas da entidade "tickets".
+// Todas as rotas dentro do 'ticketRoutes' receberão o prefixo '/tickets'.
 app.use('/tickets', ticketRoutes);
 
-// Middleware para lidar com rotas não encontradas e erros gerais.
+// Acopla os Middlewares de erro no final do fluxo.
+// Qualquer rota não capturada anteriormente cairá no 'notFoundHandler'.
+// Qualquer exceção (throw/next) cairá no 'errorHandler' para formatação padronizada.
 app.use(notFoundHandler);
 app.use(errorHandler);
 
