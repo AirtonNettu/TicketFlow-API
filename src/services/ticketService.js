@@ -1,5 +1,12 @@
-// Serviço de tickets: aqui está a lógica de negócio e a persistência em arquivo JSON.
-// Este módulo lê e grava no arquivo `src/data/chamados.json` e retorna os resultados para o controller.
+/**
+ * Ticket Service
+ *
+ * Responsabilidade: Regras de negócio da aplicação e comunicação direta com a camada de dados.
+ * É aqui que a lógica puramente focada no domínio "Chamado" reside.
+ * Atualmente, devido à arquitetura inicial do projeto, esta camada acopla o domínio
+ * com a infraestrutura de dados (Filesystem). Em uma evolução (V2), a persistência
+ * deve ser delegada a um Repository.
+ */
 const fs = require('fs').promises;
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -13,7 +20,16 @@ const {
 
 const dataFile = path.join(__dirname, '..', 'data', 'chamados.json');
 
-// Lê o arquivo JSON e converte em array de tickets.
+/**
+ * Lê o banco de dados JSON e desserializa em memória.
+ *
+ * Fluxo:
+ * 1. Tenta acessar o arquivo no sistema.
+ * 2. Se o arquivo não existir (ENOENT), entende-se que é o "primeiro uso" e retorna um array vazio.
+ * 3. Se houver outro erro (permissão, corrupção do JSON), propaga a falha.
+ *
+ * Trade-off atual: Como o JSON inteiro é lido na memória, isso não escala para arquivos muito grandes.
+ */
 async function readData() {
   try {
     const file = await fs.readFile(dataFile, 'utf8');
@@ -27,12 +43,37 @@ async function readData() {
   }
 }
 
-// Grava a lista de tickets no arquivo JSON.
+/**
+ * Sobrescreve o banco de dados JSON com o array de tickets modificado.
+ *
+ * Fluxo:
+ * 1. Extrai o caminho do diretório pai.
+ * 2. Garante a criação da pasta 'src/data' dinamicamente usando fs.mkdir(recursive), evitando falha no primeiro deploy.
+ * 3. Converte a estrutura de dados para String JSON (formatada com 2 espaços).
+ * 4. Sobrescreve o arquivo inteiro de uma só vez (Blocking potential em cenários de alta concorrência).
+ */
 async function writeData(tickets) {
+  // Garante que a pasta exista antes de gravar
+  const dataDir = path.dirname(dataFile);
+  try {
+    await fs.mkdir(dataDir, { recursive: true });
+  } catch (err) {
+    // ignora erro se a pasta já existe
+    if (err.code !== 'EEXIST') throw err;
+  }
+
   await fs.writeFile(dataFile, JSON.stringify(tickets, null, 2), 'utf8');
 }
 
-// Retorna tickets com filtros simples e paginacao.
+/**
+ * Retorna uma lista paginada e opcionalmente filtrada de chamados.
+ *
+ * Fluxo:
+ * 1. Carrega toda a base em memória.
+ * 2. Aplica reduções em cascata (Array.filter) baseados nos atributos de status, categoria e prioridade.
+ * 3. Calcula o offset de paginação matematicamente (limit * (page - 1)).
+ * 4. Fatiar o array (Array.slice) retornando apenas os dados da página solicitada e metadados úteis para o front-end montar sua interface.
+ */
 async function getAllTickets(filters = {}) {
   const tickets = await readData();
   let filteredTickets = tickets;
@@ -77,7 +118,17 @@ async function getTicketById(id) {
   return ticket;
 }
 
-// Cria um novo ticket com UUID e data de criação.
+/**
+ * Criação da entidade de Chamado.
+ *
+ * Fluxo:
+ * 1. Carrega os dados existentes.
+ * 2. Anexa ao payload os identificadores essenciais do domínio:
+ *    - UUID V4 (para não usar IDs sequenciais adivinháveis).
+ *    - Status 'Aberto' implícito (não se confia no status vindo do cliente na criação).
+ *    - Timestamp em formato ISO 8601.
+ * 3. Inclui na lista, salva o disco e retorna a entidade materializada.
+ */
 async function createTicket(payload) {
   const tickets = await readData();
   const createdAt = new Date().toISOString();
