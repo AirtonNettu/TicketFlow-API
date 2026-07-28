@@ -23,8 +23,16 @@ function notFoundHandler(req, res, next) {
  * com HTTP 500 (Internal Server Error) para evitar vazamento de StackTrace.
  */
 function errorHandler(err, req, res, next) {
+  // Log internal errors for debugging, since we will mask them to the client
+  if (!err.statusCode || err.statusCode >= 500) {
+    console.error('🚨 [Internal Error]:', err);
+  }
+
   const status = err.statusCode || 500;
-  const message = err.message || 'Erro interno do servidor';
+  // Prevent information leakage: Only expose messages for operational ApiErrors.
+  // For system/internal errors (500), force a generic message.
+  const isApiError = err.name === 'ApiError' || err instanceof ApiError || err.statusCode < 500;
+  const message = isApiError ? (err.message || 'Erro na requisição') : 'Erro interno do servidor';
   const code = err.code || (status >= 500 ? 'INTERNAL_ERROR' : 'BAD_REQUEST');
   const details = Array.isArray(err.details) ? err.details : [];
 
