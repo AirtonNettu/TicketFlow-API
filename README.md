@@ -1,9 +1,14 @@
-# Support Ticket System
+# Support Ticket System (TicketFlow API)
 
 ![license](https://img.shields.io/badge/license-MIT-green.svg)
 ![node](https://img.shields.io/badge/node-%3E%3D14-brightgreen)
 
 REST API to manage technical support tickets. Ideal for a portfolio aimed at IT Support Assistant, Support Analyst and Junior Backend Developer positions.
+
+## Project Overview
+
+The TicketFlow API was created to solve the problem of unorganized and decentralized IT support requests. This system provides a robust API to create, track, filter, and manage tickets, ensuring that no request is lost or delayed.
+The main goal of this API is to serve as a reliable backend for a Help Desk or Service Desk environment. The target audience includes support analysts managing internal operations, as well as software engineering students looking for a comprehensive REST API project built with Node.js.
 
 ## Technologies
 
@@ -11,19 +16,81 @@ REST API to manage technical support tickets. Ideal for a portfolio aimed at IT 
 - Express
 - JavaScript
 - UUID
-- Layered architecture (Routes, Controllers, Services)
-- JSON file storage (initial version)
+- SQLite (v2 Storage Migration)
+- Layered architecture (Routes, Controllers, Services, Repositories)
+
+## Architecture Overview
+
+The system follows a layered architecture to separate concerns, making it easier to test, maintain, and scale.
+
+**Request Flow:**
+1. **Client** makes an HTTP request to the API.
+2. The request passes through **Middlewares** (e.g., error handling, parsing).
+3. The **Route** forwards the request to the correct **Controller**.
+4. The **Controller** validates the input and delegates business logic to the **Service**.
+5. The **Service** processes the rules and calls the **Repository** or Storage interface.
+6. The **Database Layer** interacts with the **SQLite Database** to read or write data.
+7. The result flows back to the client as an HTTP response.
+
+For a deeper visual understanding, refer to our diagrams located in the `docs/diagrams/` folder:
+- [C4 Context Diagram](docs/diagrams/c4-context.md)
+- [C4 Container Diagram](docs/diagrams/c4-container.md)
+- [C4 Component Diagram](docs/diagrams/c4-component.md)
+- [Request Flow Diagram](docs/diagrams/request-flow.md)
+
+## Architectural Decisions
+
+### Evolution of Data Storage (JSON to SQLite)
+
+**v1: JSON Storage**
+- Initially, this project utilized a simple JSON file (`chamados.json`) for data persistence. This was chosen to keep the project extremely lightweight, easy to understand, and dependency-free for beginners.
+- **Problem:** While great for learning, manipulating a JSON file for concurrent requests in a real-world scenario leads to race conditions, poor performance on reads/writes, and lacks complex querying capabilities.
+
+**v2: SQLite Persistence**
+- As the architecture evolved, the persistence layer was migrated to **SQLite**.
+- **Benefits:** SQLite provides a real SQL database engine that is file-based. It avoids the overhead of setting up a separate database server (like PostgreSQL) while offering the robustness of SQL (ACID compliance, robust filtering, and true pagination).
+- **Architectural Impact:** This migration was smooth because of the Layered Architecture. By creating a `Repository` layer, the `Service` layer remained completely agnostic to how the data was stored.
+
+### Layered Architecture
+- **Routes:** Maps HTTP endpoints to controller actions.
+- **Controllers:** Handles HTTP requests and responses, extracting parameters and validating payload syntax.
+- **Services:** Contains the core business logic (e.g., verifying if a ticket exists before updating it).
+- **Repositories (Data Layer):** Handles direct communication with the database or file storage.
+- **Middlewares:** Centralizes cross-cutting concerns like error handling.
+
+### Docker (Future Integration)
+Docker will be introduced to standardize the development and deployment environments.
+- **Reason:** It eliminates the "it works on my machine" problem by bundling the app and its dependencies (Node.js, Storage engine) into a single container.
+- **Benefits:** Simplifies CI/CD pipelines and deployment processes.
+
+## Learning Outcomes
+
+By studying and contributing to this project, you can expect to practice and learn:
+- Designing and implementing a **RESTful API**.
+- Handling **HTTP** methods, status codes, and JSON payloads.
+- **Backend development** with Node.js and Express.
+- Applying a **Layered Architecture** and separating concerns.
+- Understanding the architectural evolution from **JSON storage to a relational DB (SQLite)**.
+- Git workflow and version control.
+- Writing professional **Technical Documentation** (C4 Model, architectural guides).
 
 ## Project structure
 
 ```
 src/
+├── config/
+│   └── db.js
 ├── controllers/
 │   └── ticketController.js
 ├── data/
-│   └── chamados.json
+│   └── database.sqlite
+├── db/
+│   ├── migrate.js
+│   └── seed.js
 ├── middlewares/
 │   └── errorHandler.js
+├── repositories/
+│   └── ticketRepository.js
 ├── routes/
 │   └── ticketRoutes.js
 ├── services/
@@ -33,32 +100,30 @@ src/
 └── server.js
 ```
 
-## Architecture
-
-- `src/server.js`: application entrypoint. Configures Express server, registers routes and error middleware.
-- `src/routes/ticketRoutes.js`: HTTP endpoints mapping to controller actions.
-- `src/controllers/ticketController.js`: request handling and input validation; delegates to services.
-- `src/services/ticketService.js`: business logic and persistence (JSON file).
-- `src/data/chamados.json`: data storage for tickets.
-- `src/utils/validation.js`: input validation and allowed values for category, priority and status.
-- `src/middlewares/errorHandler.js`: centralized error handling.
-
 ## Install
 
 ```bash
 npm install
 ```
 
+## Database Setup
+
+```bash
+cp .env.example .env
+npm run db:migrate
+npm run db:seed
+```
+
 ## Run
 
 ```bash
-npm start
+npm start &
 ```
 
 For development with auto-reload:
 
 ```bash
-npm run dev
+npm run dev &
 ```
 
 API documentation is available at:
@@ -70,7 +135,7 @@ API documentation is available at:
 - `GET /` - Root with link to documentation
 - `GET /docs` - Professional HTML documentation
 - `POST /tickets` - Create a new ticket
-- `GET /tickets` - List all tickets
+- `GET /tickets` - List all tickets (supports `page`, `limit`, `status`, `categoria`, `prioridade` query params)
 - `GET /tickets/:id` - Get ticket by ID
 - `PUT /tickets/:id` - Update a ticket
 - `PATCH /tickets/:id/status` - Update ticket status only
@@ -142,58 +207,27 @@ curl -X DELETE http://localhost:3000/tickets/{id}
 Success response for `GET /tickets` (200):
 
 ```json
-[{
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "titulo": "Impressora não imprime",
-  "descricao": "A impressora do setor financeiro não responde",
-  "categoria": "Impressora",
-  "prioridade": "Alta",
-  "status": "Aberto",
-  "createdAt": "2026-05-29T12:34:56.789Z"
-}]
+{
+  "data": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "titulo": "Impressora não imprime",
+      "descricao": "A impressora do setor financeiro não responde",
+      "categoria": "Impressora",
+      "prioridade": "Alta",
+      "status": "Aberto",
+      "createdAt": "2026-05-29T12:34:56.789Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 1,
+    "totalPages": 1
+  }
+}
 ```
 
 ## License
 
 This project is licensed under the MIT License — see the `LICENSE` file for details.
-
-## Contributing
-
-Contributions are welcome. Please open issues or submit pull requests on the GitHub repository.
-
-## Next improvements
-
-- Migrate storage to PostgreSQL
-- Adopt Prisma ORM
-- Create a Docker environment
-- Add JWT authentication
-- Web dashboard
-- User and technician management
-
-
-## TicketFlow v2
-
-TicketFlow v2 is planned as a complete rebuild of the project, focused on TypeScript, database persistence, authentication, role-based authorization, and a more robust architecture.
-
-The v2 proposal includes:
-
-- Backend with Node.js, TypeScript, and Express/Fastify
-- Service-based architecture: Auth, Users, Tickets, and Notifications
-- API Gateway for authentication, rate limiting, HTTPS, and routing
-- PostgreSQL with Prisma ORM
-- JWT authentication with access and refresh tokens
-- Password hashing with bcrypt
-- Access roles: user, technician, and admin/manager
-- Redis + BullMQ for asynchronous notifications
-- Frontend with React, Axios, and React Query
-- Deployment with Railway and Vercel
-- CI/CD with GitHub Actions
-
-The initial v2 documentation is available at:
-
-- [`docs/architecture-v2.md`](docs/architecture-v2.md)
-- [`docs/api-contracts-v2.md`](docs/api-contracts-v2.md)
-- [`docs/implementation-checklist-v2.md`](docs/implementation-checklist-v2.md)
-- [`docs/security-checklist.md`](docs/security-checklist.md)
-
-The current v1 remains focused on JavaScript fundamentals, Node.js, Express, routes, controllers, services, validation, and JSON-based persistence.
