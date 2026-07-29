@@ -51,6 +51,26 @@ async function fetchTickets() {
  
 /*
   ──────────────────────────────────────────────────────
+  escapeHTML(str)
+
+  Escapa caracteres especiais HTML para prevenir ataques de Cross-Site Scripting (XSS).
+  Isso garante que se um usuário digitar <script>alert(1)</script>, ele será exibido
+  como texto e não executado como código.
+  ──────────────────────────────────────────────────────
+*/
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+
+/*
+  ──────────────────────────────────────────────────────
   prioridadeClass(p)
   
   Recebe uma string de prioridade e retorna a classe CSS correta.
@@ -178,11 +198,11 @@ function renderTickets(list) {
     return `
       <div class="ticket-item">
         <div class="ticket-head">
-          <div class="ticket-titulo">${t.titulo}</div>
+          <div class="ticket-titulo">${escapeHTML(t.titulo)}</div>
           <span class="badge ${prioridadeClass(t.prioridade)}">${t.prioridade.toUpperCase()}</span>
         </div>
         <div class="ticket-meta">${t.categoria}</div>
-        <div class="ticket-desc">${t.descricao}</div>
+        <div class="ticket-desc">${escapeHTML(t.descricao)}</div>
         <div class="ticket-footer">
           <span class="badge badge-cat">${t.categoria}</span>
           <span class="badge ${statusClass(t.status)}">${t.status}</span>

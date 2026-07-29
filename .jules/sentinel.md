@@ -1,0 +1,4 @@
+## 2024-05-24 - [Stored XSS Mitigated at Output]
+**Vulnerability:** User inputs for `titulo` and `descricao` were being accepted via the `/tickets` endpoint and were directly rendered into HTML templates in the frontend (`public/app.js`), allowing Stored Cross-Site Scripting (XSS).
+**Learning:** In a previous iteration, we attempted to sanitize at the backend AND escape at the frontend, which caused a "double-escaping" bug where valid characters like `&` were rendered as `&amp;amp;`.
+**Prevention:** It is generally best practice to store data exactly as provided by the user in the database (raw text), and ONLY escape the data right before it is rendered to the UI. We mitigated the vulnerability by adding an `escapeHTML` helper in `public/app.js` and applying it when inserting data into the template literal.
