@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "86d7cb6f-c7b3-4cc3-af1e-7e68441eaa0f",
+    "titulo": "XSS Test <script>alert(1)</script>",
+    "descricao": "Testing <img src=x onerror=alert(2)>",
+    "categoria": "Hardware",
+    "prioridade": "Média",
+    "status": "Aberto",
+    "createdAt": "2026-07-30T10:33:32.561Z"
+  }
+]
