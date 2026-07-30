@@ -1,0 +1,6 @@
+
+> sistema-chamados-suporte-tecnico@1.0.0 start
+> node src/server.js
+
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+Servidor rodando em http://localhost:3000
