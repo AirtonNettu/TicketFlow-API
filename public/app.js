@@ -51,6 +51,25 @@ async function fetchTickets() {
  
 /*
   ──────────────────────────────────────────────────────
+  escapeHTML(str)
+
+  Escapa caracteres especiais HTML para prevenir ataques de
+  Cross-Site Scripting (XSS) ao inserir conteúdo no DOM via innerHTML.
+  ──────────────────────────────────────────────────────
+*/
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+
+/*
+  ──────────────────────────────────────────────────────
   prioridadeClass(p)
   
   Recebe uma string de prioridade e retorna a classe CSS correta.
@@ -178,15 +197,15 @@ function renderTickets(list) {
     return `
       <div class="ticket-item">
         <div class="ticket-head">
-          <div class="ticket-titulo">${t.titulo}</div>
-          <span class="badge ${prioridadeClass(t.prioridade)}">${t.prioridade.toUpperCase()}</span>
+          <div class="ticket-titulo">${escapeHTML(t.titulo)}</div>
+          <span class="badge ${prioridadeClass(t.prioridade)}">${escapeHTML(t.prioridade.toUpperCase())}</span>
         </div>
-        <div class="ticket-meta">${t.categoria}</div>
-        <div class="ticket-desc">${t.descricao}</div>
+        <div class="ticket-meta">${escapeHTML(t.categoria)}</div>
+        <div class="ticket-desc">${escapeHTML(t.descricao)}</div>
         <div class="ticket-footer">
-          <span class="badge badge-cat">${t.categoria}</span>
-          <span class="badge ${statusClass(t.status)}">${t.status}</span>
-          <span class="ticket-date">${data}</span>
+          <span class="badge badge-cat">${escapeHTML(t.categoria)}</span>
+          <span class="badge ${statusClass(t.status)}">${escapeHTML(t.status)}</span>
+          <span class="ticket-date">${escapeHTML(data)}</span>
         </div>
       </div>
     `;

@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "id": "35513eea-b176-4937-a198-7e54beae1174",
+    "titulo": "<script>alert(1)</script>",
+    "descricao": "XSS attack",
+    "categoria": "Hardware",
+    "prioridade": "Alta",
+    "status": "Aberto",
+    "createdAt": "2026-08-01T10:11:33.407Z"
+  },
+  {
+    "id": "c543dbb2-0c9e-4a8b-a558-23d0b7fef7e3",
+    "titulo": "<script>alert('XSS Title')</script> Title",
+    "descricao": "<img src=x onerror=alert('XSS Desc')> Desc",
+    "categoria": "Hardware",
+    "prioridade": "Alta",
+    "status": "Aberto",
+    "createdAt": "2026-08-01T10:14:17.021Z"
+  }
+]
