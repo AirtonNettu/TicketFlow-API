@@ -1,0 +1,4 @@
+## 2024-05-24 - Stored XSS via innerHTML
+**Vulnerability:** Found a Stored Cross-Site Scripting (XSS) vulnerability in `public/app.js` where user input (`t.titulo`, `t.categoria`, `t.descricao`) was rendered directly into the DOM using `.innerHTML` without sanitization.
+**Learning:** The project is implemented in vanilla JavaScript without a modern framework that provides automatic output encoding (like React or Vue). Directly injecting raw user data fetched from the API (which is stored in the database as raw text according to project conventions) into HTML templates and setting them via `.innerHTML` causes double-escaping bugs if not mitigated properly on the frontend.
+**Prevention:** Always apply output encoding using a utility function like `escapeHTML` to sanitize user input (escaping special characters like `<`, `>`, `&`, `"`, `'`) right before rendering when using `.innerHTML` or similar unsafe DOM APIs.
