@@ -24,7 +24,16 @@ function notFoundHandler(req, res, next) {
  */
 function errorHandler(err, req, res, next) {
   const status = err.statusCode || 500;
-  const message = err.message || 'Erro interno do servidor';
+  let message = 'Erro interno do servidor';
+
+  // Apenas repassamos mensagens reais de erro se forem erros conhecidos/operacionais
+  if (err.name === 'ApiError' || err instanceof ApiError || status < 500) {
+    message = err.message || 'Erro interno do servidor';
+  } else {
+    // Registra o erro não tratado no servidor para fins de depuração e auditoria
+    console.error('[ERRO NÃO TRATADO]', err);
+  }
+
   const code = err.code || (status >= 500 ? 'INTERNAL_ERROR' : 'BAD_REQUEST');
   const details = Array.isArray(err.details) ? err.details : [];
 
