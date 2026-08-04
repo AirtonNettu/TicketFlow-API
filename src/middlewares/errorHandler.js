@@ -24,8 +24,11 @@ function notFoundHandler(req, res, next) {
  */
 function errorHandler(err, req, res, next) {
   const status = err.statusCode || 500;
-  const message = err.message || 'Erro interno do servidor';
-  const code = err.code || (status >= 500 ? 'INTERNAL_ERROR' : 'BAD_REQUEST');
+  const isInternal = status >= 500;
+
+  // Sentinel: Fail securely - don't leak internal error messages or stack traces
+  const message = isInternal ? 'Erro interno do servidor' : (err.message || 'Erro interno do servidor');
+  const code = err.code || (isInternal ? 'INTERNAL_ERROR' : 'BAD_REQUEST');
   const details = Array.isArray(err.details) ? err.details : [];
 
   return res.status(status).json({
