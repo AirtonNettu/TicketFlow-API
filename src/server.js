@@ -16,7 +16,10 @@ const app = express();
 
 // Habilita o Cross-Origin Resource Sharing. Essencial para que SPAs (React/Vue)
 // rodando em outras portas/domínios possam consumir esta API via navegador.
-app.use(cors());
+// Sentinel: Restringir origens permitidas para evitar o risco de acesso indevido de outras origens.
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS || 'http://localhost:3000'
+}));
 
 // Habilita o parse automático de corpos de requisição (req.body)
 // que chegam com o Content-Type 'application/json'.
