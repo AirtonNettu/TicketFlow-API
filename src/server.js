@@ -16,7 +16,16 @@ const app = express();
 
 // Habilita o Cross-Origin Resource Sharing. Essencial para que SPAs (React/Vue)
 // rodando em outras portas/domínios possam consumir esta API via navegador.
-app.use(cors());
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
+  : ['http://localhost:3000'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('CORS não permitido para esta origem'));
+  }
+}));
 
 // Habilita o parse automático de corpos de requisição (req.body)
 // que chegam com o Content-Type 'application/json'.
